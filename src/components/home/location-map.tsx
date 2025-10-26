@@ -17,8 +17,9 @@ export function LocationMap() {
                         <span>{BUSINESS_INFO.address}</span>
                     </p>
                 </div>
-                <Card className="overflow-hidden shadow-xl">
-                     <div className="aspect-video">
+                <Card className="overflow-hidden rounded-3xl border border-border/60 shadow-[0_30px_70px_-35px_rgba(0,0,0,0.4)]">
+                     <div className="relative aspect-video">
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10" aria-hidden="true" />
                         <iframe
                             src={embedUrl}
                             width="100%"
