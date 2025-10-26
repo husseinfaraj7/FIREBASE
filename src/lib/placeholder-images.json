@@ -1,0 +1,142 @@
+{
+  "placeholderImages": [
+    {
+      "id": "car-fiat-500",
+      "description": "A white Fiat 500 parked on a colourful street.",
+      "imageUrl": "https://images.unsplash.com/photo-1609676671207-d021525a635d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaXR5JTIwY2FyfGVufDB8fHx8MTc2MTQwMzMyNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city car"
+    },
+    {
+      "id": "car-bmw-x3",
+      "description": "A dark blue BMW X3 driving on a mountain road.",
+      "imageUrl": "https://images.unsplash.com/photo-1627467101222-fe584222bc06?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzdXYlMjByb2FkfGVufDB8fHx8MTc2MTQxNjc4N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "suv road"
+    },
+    {
+      "id": "car-audi-a4",
+      "description": "A silver Audi A4 sedan at sunset.",
+      "imageUrl": "https://images.unsplash.com/photo-1758223724963-5c4f5ef0ce60?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzaWx2ZXIlMjBzZWRhbnxlbnwwfHx8fDE3NjEzNjIxNDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "silver sedan"
+    },
+    {
+      "id": "car-vw-golf",
+      "description": "A red Volkswagen Golf hatchback.",
+      "imageUrl": "https://images.unsplash.com/photo-1641825932091-73f78062d625?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyZWQlMjBoYXRjaGJhY2t8ZW58MHx8fHwxNzYxMzcwMTA2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "red hatchback"
+    },
+    {
+      "id": "car-porsche-911",
+      "description": "A yellow Porsche 911 on a race track.",
+      "imageUrl": "https://images.unsplash.com/photo-1707399720697-b1d1502fac58?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzcG9ydHMlMjBjYXJ8ZW58MHx8fHwxNzYxMzkzMTk1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sports car"
+    },
+    {
+      "id": "car-mercedes-s-class",
+      "description": "A black Mercedes S-Class luxury sedan.",
+      "imageUrl": "https://images.unsplash.com/photo-1707407772603-274cc5cf18f4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBzZWRhbnxlbnwwfHx8fDE3NjEzMTgzNzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "luxury sedan"
+    },
+    {
+      "id": "car-tesla-model3",
+      "description": "A white Tesla Model 3 charging.",
+      "imageUrl": "https://images.unsplash.com/photo-1607171028974-319ba56cb013?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxlbGVjdHJpYyUyMGNhcnxlbnwwfHx8fDE3NjEzMjU1NDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "electric car"
+    },
+    {
+      "id": "car-jeep-wrangler",
+      "description": "A green Jeep Wrangler off-road.",
+      "imageUrl": "https://images.unsplash.com/photo-1627666259356-03a116b7dde9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8b2Zmcm9hZCUyMHZlaGljbGV8ZW58MHx8fHwxNzYxMzE4Mzc1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "offroad vehicle"
+    },
+    {
+      "id": "car-mazda-mx5",
+      "description": "A red Mazda MX-5 convertible with the top down.",
+      "imageUrl": "https://images.unsplash.com/photo-1616269218527-451c383e65c6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyZWQlMjBjb252ZXJ0aWJsZXxlbnwwfHx8fDE3NjEzODkwMjd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "red convertible"
+    },
+    {
+      "id": "car-toyota-chr",
+      "description": "A stylish Toyota C-HR crossover in the city.",
+      "imageUrl": "https://images.unsplash.com/photo-1684849311625-b66671fb66d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3aGl0ZSUyMGNyb3Nzb3ZlcnxlbnwwfHx8fDE3NjE0MTY3ODd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "white crossover"
+    },
+    {
+      "id": "car-volvo-v60",
+      "description": "A grey Volvo V60 station wagon.",
+      "imageUrl": "https://images.unsplash.com/photo-1530065928592-fb0dc85d2f27?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmYW1pbHklMjBjYXJ8ZW58MHx8fHwxNzYxMzA4MDM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "family car"
+    },
+    {
+      "id": "car-ford-ranger",
+      "description": "A blue Ford Ranger pickup truck.",
+      "imageUrl": "https://images.unsplash.com/photo-1601252300554-4ad551483bd2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwaWNrdXAlMjB0cnVja3xlbnwwfHx8fDE3NjEzNjU2MDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pickup truck"
+    },
+    {
+      "id": "hero-background",
+      "description": "A scenic road with a beautiful car driving on it.",
+      "imageUrl": "/images/050a47e84fef7d99a5cc10738162c92c.jpg",
+      "imageHint": "car road"
+    },
+    {
+      "id": "team-member-1",
+      "description": "Portrait of a friendly sales manager.",
+      "imageUrl": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwcm9mZXNzaW9uYWwlMjBtYW58ZW58MHx8fHwxNzYxMzg2NjM3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional man"
+    },
+    {
+      "id": "team-member-2",
+      "description": "Portrait of a knowledgeable female mechanic.",
+      "imageUrl": "https://images.unsplash.com/photo-1610631066894-62452ccb927c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwcm9mZXNzaW9uYWwlMjB3b21hbnxlbnwwfHx8fDE3NjEzMjc5MDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional woman"
+    },
+    {
+      "id": "team-member-3",
+      "description": "Portrait of the company founder.",
+      "imageUrl": "https://images.unsplash.com/photo-1647004042394-fa213a40d4fe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzZW5pb3IlMjBtYW58ZW58MHx8fHwxNzYxNDExMjYxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "senior man"
+    },
+    {
+      "id": "testimonial-1",
+      "description": "A happy customer smiling.",
+      "imageUrl": "https://images.unsplash.com/photo-1614023342667-6f060e9d1e04?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzbWlsaW5nJTIwbWFufGVufDB8fHx8MTc2MTQwNzAxN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smiling man"
+    },
+    {
+      "id": "testimonial-2",
+      "description": "A happy customer smiling.",
+      "imageUrl": "https://images.unsplash.com/flagged/photo-1559855603-ce4c8f480d76?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzbWlsaW5nJTIwd29tYW58ZW58MHx8fHwxNzYxMzAzNDgwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smiling woman"
+    },
+    {
+      "id": "testimonial-3",
+      "description": "A happy customer smiling.",
+      "imageUrl": "https://images.unsplash.com/photo-1525186402429-b4ff38bedec6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxoYXBweSUyMHBlcnNvbnxlbnwwfHx8fDE3NjEzNDI1NDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "happy person"
+    },
+    {
+      "id": "testimonial-4",
+      "description": "A happy customer smiling.",
+      "imageUrl": "https://images.unsplash.com/photo-1557053910-d9eadeed1c58?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2MTM4NTI1OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "testimonial-5",
+      "description": "A happy customer smiling.",
+      "imageUrl": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjEzNjg0OTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "about-hero",
+      "description": "Interior of a modern car dealership.",
+      "imageUrl": "https://images.unsplash.com/photo-1615563868638-98253a7dc33b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjYXIlMjBkZWFsZXJzaGlwfGVufDB8fHx8MTc2MTQwNzgxNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "car dealership"
+    },
+    {
+      "id": "contact-hero",
+      "description": "A winding road seen from above.",
+      "imageUrl": "https://images.unsplash.com/photo-1683754863303-d1f2802efb83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyb2FkJTIwYWVyaWFsfGVufDB8fHx8MTc2MTQxNjc4N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "road aerial"
+    }
+  ]
+}

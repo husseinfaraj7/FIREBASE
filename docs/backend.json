@@ -1,0 +1,207 @@
+
+{
+  "entities": {
+    "Car": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Car",
+      "type": "object",
+      "description": "Represents a car listing in the MiniCar application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Car entity."
+        },
+        "make": {
+          "type": "string",
+          "description": "Manufacturer of the car (e.g., Fiat, BMW)."
+        },
+        "model": {
+          "type": "string",
+          "description": "Model name of the car (e.g., 500, X3)."
+        },
+        "year": {
+          "type": "number",
+          "description": "Manufacturing year of the car (e.g., 2020)."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the car in EUR."
+        },
+        "mileage": {
+          "type": "number",
+          "description": "Kilometers driven by the car."
+        },
+        "fuelType": {
+          "type": "string",
+          "description": "Type of fuel the car uses (e.g., Benzina, Diesel)."
+        },
+        "transmission": {
+          "type": "string",
+          "description": "Type of transmission (e.g., Manuale, Automatica)."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the car."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the car (e.g., Utilitaria, Berlina)."
+        },
+        "images": {
+          "type": "array",
+          "description": "Array of image URLs for the car.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "featured": {
+          "type": "boolean",
+          "description": "Indicates if the car is featured on the homepage."
+        },
+        "available": {
+          "type": "boolean",
+          "description": "Indicates if the car is currently available for sale."
+        },
+        "maintenanceRecords": {
+          "type": "boolean",
+          "description": "Indicates if maintenance records are available for the car."
+        },
+        "warranty": {
+          "type": "boolean",
+          "description": "Indicates if the car is under warranty."
+        },
+        "owners": {
+          "type": "number",
+          "description": "Number of previous owners of the car."
+        },
+        "color": {
+          "type": "string",
+          "description": "Exterior color of the car."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date and time when the car listing was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Date and time when the car listing was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "make",
+        "model",
+        "year",
+        "price",
+        "mileage",
+        "fuelType",
+        "transmission",
+        "description",
+        "category",
+        "images",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ContactMessage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ContactMessage",
+      "type": "object",
+      "description": "Represents a contact message submitted by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ContactMessage entity."
+        },
+        "userId": {
+            "type": "string",
+            "description": "ID of the user who submitted the message, if authenticated."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the person submitting the contact message."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the person submitting the contact message.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number of the person submitting the contact message (optional)."
+        },
+        "message": {
+          "type": "string",
+          "description": "The message content."
+        },
+        "carId": {
+          "type": "string",
+          "description": "Reference to Car. (Relationship: Car 1:N ContactMessage) Optional ID of the car the message is related to.",
+          "format": "uuid"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the contact message (e.g., new, read, replied)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date and time when the contact message was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "message",
+        "status",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/cars/{carId}",
+        "definition": {
+          "entityName": "Car",
+          "schema": {
+            "$ref": "#/backend/entities/Car"
+          },
+          "description": "Stores car listings. Admins can create, read, update, and delete car documents. All users can list cars.",
+          "params": [
+            {
+              "name": "carId",
+              "description": "Unique identifier for the car document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/contact_messages/{messageId}",
+        "definition": {
+          "entityName": "ContactMessage",
+          "schema": {
+            "$ref": "#/backend/entities/ContactMessage"
+          },
+          "description": "Stores contact messages. Logged-in users can read their own messages. Admins can read and delete all messages.",
+          "params": [
+            {
+              "name": "messageId",
+              "description": "Unique identifier for the contact message."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, following the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). Authorization Independence is achieved through denormalization; access control data is included directly within the documents that require protection. This avoids complex `get()` calls in security rules and supports atomic operations. Structural Segregation is applied to maintain a homogeneous security posture within each collection. Access Modeling uses consistent patterns for authorization, specifically path-based ownership and membership maps. Data Clarity and Predictability are enhanced through explicit state modeling and predictable schema.\n\nSpecifically:\n\n*   `/cars` collection: Stores car listings. The security rules will ensure that only authorized users (admins) can create, update, or delete car documents. List operations are allowed to all users.\n*   `/contact_messages` collection: Stores contact messages submitted by users.  The `status` field allows filtering messages based on their state (new, read, replied). Authorization is enforced by requiring admin privileges to read or delete messages. This structure supports QAPs by enabling secure list operations for admins while preventing unauthorized access.\n\nThis design prioritizes maintainability and clarity in security rules, enabling robust access control without compromising atomic operations or debuggability."
+  }
+}

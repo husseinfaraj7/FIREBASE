@@ -1,0 +1,53 @@
+import { Header } from "@/components/common/header";
+import { Footer } from "@/components/common/footer";
+import { ContactForm } from "@/components/contact/contact-form";
+import { CompanyInfo } from "@/components/contact/company-info";
+import Image from "next/image";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
+
+const ContactHero = () => {
+  const image = PlaceHolderImages.find(p => p.id === 'contact-hero');
+  return (
+    <section className="relative bg-secondary py-20 md:py-32">
+       {image && (
+        <Image
+          src={image.imageUrl}
+          alt={image.description}
+          data-ai-hint={image.imageHint}
+          fill
+          className="object-cover opacity-10"
+        />
+      )}
+      <div className="container relative z-10 text-center">
+        <h1 className="text-4xl md:text-5xl font-bold">Mettiti in Contatto</h1>
+        <p className="mt-4 max-w-3xl mx-auto text-lg text-muted-foreground">
+          Siamo qui per aiutarti. Compila il modulo o utilizza uno dei nostri canali di contatto.
+        </p>
+      </div>
+    </section>
+  );
+};
+
+export default function ContactPage() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow">
+        <ContactHero />
+        <section className="py-16 md:py-24">
+            <div className="container">
+                <div className="grid lg:grid-cols-3 gap-8 lg:gap-16">
+                    <div className="lg:col-span-2">
+                        <ContactForm />
+                    </div>
+                    <div className="lg:col-span-1">
+                        <CompanyInfo />
+                    </div>
+                </div>
+            </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+}

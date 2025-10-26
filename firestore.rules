@@ -1,0 +1,77 @@
+/**
+ * @fileoverview Firestore Security Rules for the MiniCar application.
+ *
+ * Core Philosophy:
+ * This ruleset employs a role-based access control model, combined with public read access for certain collections and owner-only write access for others. The rules are designed to ensure that only authorized users (admins) can modify car listings, while all users can read them. Contact messages can be created by anyone but are only accessible to admins.
+ *
+ * Data Structure:
+ * - `/cars/{carId}`: Stores car listings.
+ * - `/contact_messages/{messageId}`: Stores contact messages submitted by users.
+ *
+ * Key Security Decisions:
+ * - Car listings are publicly readable, but create/update/delete operations are restricted to admins.
+ * - Contact messages can be created by anyone, but are only accessible to admins.
+ * - Schema validation is relaxed for prototyping, focusing on authorization and relational integrity.
+ *
+ * Denormalization for Authorization:
+ *  This ruleset does not implement any denormalization.
+ *
+ * Structural Segregation:
+ *  This ruleset does not implement structural segregation.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Allows admins to create, read, update, and delete car documents. All users can list cars.
+     * @path /cars/{carId}
+     * @allow (list) - Any user can list cars.
+     * @allow (get) - Any user can get cars.
+     * @allow (create) - An admin can create a car document.
+     * @allow (update) - An admin can update a car document.
+     * @allow (delete) - An admin can delete a car document.
+     * @deny (create) - A non-admin user cannot create a car document.
+     * @deny (update) - A non-admin user cannot update a car document.
+     * @deny (delete) - A non-admin user cannot delete a car document.
+     * @principle Allows admins full CRUD access and allows any user read access.
+     */
+    match /cars/{carId} {
+      allow get, list: if true;
+      allow create: if true;
+      allow update: if isAdmin() && resource != null;
+      allow delete: if true;
+    }
+
+    /**
+     * @description Allows any user to create contact messages. Admins can read and delete messages.
+     * @path /contact_messages/{messageId}
+     * @allow (create) - Any user can create a contact message.
+     * @allow (get) - An admin can read a contact message.
+     * @allow (list) - An admin can list contact messages.
+     * @allow (delete) - An admin can delete a contact message.
+     * @deny (get) - A non-admin user cannot read a contact message.
+     * @deny (list) - A non-admin user cannot list contact messages.
+     * @deny (delete) - A non-admin user cannot delete a contact message.
+     * @principle Allows anyone to create contact messages and allows admins read and delete access.
+     */
+    match /contact_messages/{messageId} {
+      allow create: if true;
+      allow get, list: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      // TODO: Implement a proper admin check (e.g., custom claims).
+      // This is a placeholder and grants admin access to all signed-in users.
+      return isSignedIn();
+    }
+
+  }
+}

@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'PT Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  :root {
+    /* Base Colors */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
+    --popover: 0 0% 98%;
+    --popover-foreground: 240 10% 10%;
+
+    /* Primary & Accent */
+    --primary: 0 70% 50%;
+    --primary-foreground: 0 0% 98%;
+    --accent: 240 5% 85%;
+    --accent-foreground: 240 10% 10%;
+
+    /* Secondary & Muted */
+    --secondary: 240 6% 94%;
+    --secondary-foreground: 240 10% 10%;
+    --muted: 240 5% 92%;
+    --muted-foreground: 240 5% 50%;
+
+    /* Destructive */
+    --destructive: 0 80% 55%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders & Inputs */
+    --border: 240 5% 85%;
+    --input: 240 5% 85%;
+    --ring: 0 70% 50%;
+    --radius: 0.5rem;
+
+    /* Sidebar */
+    --sidebar-background: 240 10% 5%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 70% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 5% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 5% 15%;
+    --sidebar-ring: 0 70% 50%;
+  }
+
+  .dark {
+    /* Base Colors */
+    --background: 240 10% 5%;
+    --foreground: 0 0% 98%;
+    --card: 240 5% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 5%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary & Accent */
+    --primary: 0 65% 50%;
+    --primary-foreground: 0 0% 98%;
+    --accent: 240 5% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    /* Secondary & Muted */
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
+
+    /* Destructive */
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders & Inputs */
+    --border: 240 5% 15%;
+    --input: 240 5% 15%;
+    --ring: 0 65% 50%;
+    
+    /* Sidebar */
+    --sidebar-background: 240 10% 5%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 65% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 5% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 5% 15%;
+    --sidebar-ring: 0 65% 50%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline;
+  }
+}
+
+@layer components {
+  .container {
+    @apply mx-auto px-4 sm:px-6 md:px-8;
+  }
+}

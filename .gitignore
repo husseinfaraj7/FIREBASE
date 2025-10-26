@@ -1,0 +1,8 @@
+.firebase/
+.next/
+node_modules/
+functions/node_modules/
+functions/.next/
+.env
+.env.*
+
