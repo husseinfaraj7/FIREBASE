@@ -9,7 +9,7 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import { Car, DollarSign, MessageSquare, Users, Loader2 } from 'lucide-react';
-import { useUser } from '@/firebase'; // assuming your custom hook
+import { useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 
 const stats = [
@@ -54,7 +54,6 @@ export default function DashboardPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isClaimsLoading, setIsClaimsLoading] = useState(true);
 
-  // --- Fetch admin claim ---
   useEffect(() => {
     let mounted = true;
     const checkClaims = async () => {
@@ -69,13 +68,15 @@ export default function DashboardPage() {
       }
       if (mounted) setIsClaimsLoading(false);
     };
+
     checkClaims();
-    return () => { mounted = false };
+    return () => {
+      mounted = false;
+    };
   }, [user]);
 
   const isLoading = isUserLoading || isClaimsLoading;
 
-  // --- Redirect logic ---
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
@@ -86,7 +87,6 @@ export default function DashboardPage() {
     }
   }, [user, isAdmin, isLoading, pathname, router]);
 
-  // --- Show loading state ---
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -98,98 +98,94 @@ export default function DashboardPage() {
     );
   }
 
-  // --- Block render if unauthorized ---
   if (!user || !isAdmin) return null;
 
-  // --- Main content ---
   return (
-    <main
-      className="min-h-screen px-4 py-8"
-      role="main"
-      aria-labelledby="dashboard-title"
-    >
-      <header className="mb-6">
-        <h1 id="dashboard-title" className="text-3xl font-bold">
-          Dashboard
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Panoramica delle metriche e attività recenti.
-        </p>
-      </header>
-
-      {/* Stats Section */}
-      <section
-        aria-label="Statistiche principali"
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-      >
-        {stats.map((stat) => (
-          <Card
-            key={stat.title}
-            role="region"
-            aria-labelledby={`stat-${stat.title.replace(/\s+/g, '-')}`}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle
-                id={`stat-${stat.title.replace(/\s+/g, '-')}`}
-                className="text-sm font-medium"
-              >
-                {stat.title}
-              </CardTitle>
-              <stat.icon
-                className="h-4 w-4 text-muted-foreground"
-                aria-hidden="true"
-              />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p
-                className={`text-xs ${
-                  stat.changeType === 'decrease'
-                    ? 'text-destructive'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                {stat.change} rispetto a ieri
+    <main className="bg-muted/10">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10">
+        <header className="flex flex-col gap-4 rounded-lg border bg-card p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+              Panoramica
+            </p>
+            <div>
+              <h1 id="dashboard-title" className="text-3xl font-semibold tracking-tight">
+                Dashboard amministratore
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Controlla rapidamente numeri, attività e messaggi recenti del tuo showroom digitale.
               </p>
-              <p className="sr-only">{stat.description}</p>
+            </div>
+          </div>
+          <Button variant="outline" className="w-full gap-2 sm:w-auto">
+            Aggiorna dati
+          </Button>
+        </header>
+
+        <section
+          aria-label="Statistiche principali"
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {stats.map((stat) => (
+            <Card
+              key={stat.title}
+              role="region"
+              aria-labelledby={`stat-${stat.title.replace(/\s+/g, '-')}`}
+              className="border bg-card/95 shadow-sm"
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle
+                  id={`stat-${stat.title.replace(/\s+/g, '-')}`}
+                  className="text-sm font-medium text-muted-foreground"
+                >
+                  {stat.title}
+                </CardTitle>
+                <span className="rounded-md bg-muted px-2 py-1">
+                  <stat.icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                </span>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold tracking-tight">{stat.value}</div>
+                <p
+                  className={`mt-1 text-xs font-medium ${
+                    stat.changeType === 'decrease' ? 'text-destructive' : 'text-emerald-600'
+                  }`}
+                >
+                  {stat.change} rispetto a ieri
+                </p>
+                <p className="mt-3 text-xs text-muted-foreground">{stat.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </section>
+
+        <section
+          aria-label="Attività recenti"
+          className="grid gap-6 md:grid-cols-2"
+        >
+          <Card role="region" aria-labelledby="recent-cars-title" className="border bg-card shadow-sm">
+            <CardHeader className="pb-4">
+              <h2 id="recent-cars-title" className="text-lg font-semibold">
+                Auto aggiunte di recente
+              </h2>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Tabella o lista delle auto recenti qui.
             </CardContent>
           </Card>
-        ))}
-      </section>
 
-      {/* Recent Activity Section */}
-      <section
-        aria-label="Attività recenti"
-        className="mt-8 grid gap-8 md:grid-cols-2"
-      >
-        {/* Recent Cars Card */}
-        <Card role="region" aria-labelledby="recent-cars-title">
-          <CardHeader>
-            <h2 id="recent-cars-title" className="text-lg font-semibold">
-              Auto Aggiunte di Recente
-            </h2>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Tabella o lista delle auto recenti qui.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Recent Messages Card */}
-        <Card role="region" aria-labelledby="recent-messages-title">
-          <CardHeader>
-            <h2 id="recent-messages-title" className="text-lg font-semibold">
-              Ultimi Messaggi
-            </h2>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
+          <Card role="region" aria-labelledby="recent-messages-title" className="border bg-card shadow-sm">
+            <CardHeader className="pb-4">
+              <h2 id="recent-messages-title" className="text-lg font-semibold">
+                Ultimi messaggi
+              </h2>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
               Lista degli ultimi messaggi qui.
-            </p>
-          </CardContent>
-        </Card>
-      </section>
+            </CardContent>
+          </Card>
+        </section>
+      </div>
     </main>
   );
 }
