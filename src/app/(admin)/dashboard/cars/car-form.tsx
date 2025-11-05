@@ -4,7 +4,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -27,13 +27,14 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Upload, X } from 'lucide-react';
-import { addDocumentNonBlocking, setDocumentNonBlocking, useFirestore } from '@/firebase';
+import { addDocumentNonBlocking, setDocumentNonBlocking, useFirestore, useStorage } from '@/firebase';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Car } from '@/types';
 import { CAR_CATEGORIES, FUEL_TYPES, TRANSMISSION_TYPES } from '@/lib/constants';
-import { ChangeEvent, useRef } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 12 * 1024 * 1024; // 12MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const formSchema = z.object({
@@ -61,7 +62,63 @@ type CarFormProps = {
 export function CarForm({ car, onFinished }: CarFormProps) {
   const { toast } = useToast();
   const firestore = useFirestore();
+  const storage = useStorage();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadFolderRef = useRef<string>(car?.id ?? crypto.randomUUID());
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+
+  useEffect(() => {
+    uploadFolderRef.current = car?.id ?? crypto.randomUUID();
+  }, [car?.id, car]);
+
+  const readFileAsDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+
+  const loadImage = (src: string) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = (error) => reject(error);
+      img.src = src;
+    });
+
+  const compressImageFile = async (file: File) => {
+    const dataUrl = await readFileAsDataUrl(file);
+    const img = await loadImage(dataUrl);
+    const maxDimension = 1600;
+    const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+    const targetWidth = Math.max(1, Math.round(img.width * scale));
+    const targetHeight = Math.max(1, Math.round(img.height * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      throw new Error('Impossibile creare il contesto grafico per la compressione.');
+    }
+
+    context.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+    const mimeType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+    const quality = mimeType === 'image/png' ? 0.8 : 0.75;
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, mimeType, quality)
+    );
+
+    if (!blob) {
+      throw new Error('Non è stato possibile comprimere l\'immagine.');
+    }
+
+    return new File([blob], file.name, { type: mimeType });
+  };
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -86,31 +143,80 @@ export function CarForm({ car, onFinished }: CarFormProps) {
   const { isSubmitting } = form.formState;
   const imageValues = form.watch('images');
 
-  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files) return;
+    if (!files || !files.length) return;
 
-    const currentImages = form.getValues('images');
-    const newImages: string[] = [...currentImages];
+    if (!storage) {
+      toast({
+        variant: 'destructive',
+        title: 'Storage non disponibile',
+        description: 'Impossibile caricare le immagini al momento.',
+      });
+      return;
+    }
 
-    Array.from(files).forEach(file => {
-      if (file.size > MAX_FILE_SIZE) {
-        toast({ variant: 'destructive', title: 'File troppo grande', description: `L'immagine ${file.name} supera i 5MB.` });
-        return;
+    setIsUploadingImages(true);
+
+    try {
+      const currentImages = form.getValues('images');
+      const uploads = await Promise.all(
+        Array.from(files).map(async (file) => {
+          if (file.size > MAX_FILE_SIZE) {
+            toast({
+              variant: 'destructive',
+              title: 'File troppo grande',
+              description: `L'immagine ${file.name} supera i 12MB.`,
+            });
+            return null;
+          }
+
+          if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+            toast({
+              variant: 'destructive',
+              title: 'Tipo di file non valido',
+              description: `L'immagine ${file.name} non è un formato supportato.`,
+            });
+            return null;
+          }
+
+          const compressed = await compressImageFile(file);
+
+          const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
+          const fileName = `${crypto.randomUUID()}-${safeName}`;
+          const storageRef = ref(storage, `cars/${uploadFolderRef.current}/${fileName}`);
+          const snapshot = await uploadBytes(storageRef, compressed, {
+            contentType: compressed.type || file.type,
+          });
+
+          return getDownloadURL(snapshot.ref);
+        })
+      );
+
+      const uploadedUrls = uploads.filter((url): url is string => Boolean(url));
+
+      if (uploadedUrls.length) {
+        form.setValue('images', [...currentImages, ...uploadedUrls], { shouldValidate: true });
+        toast({
+          title: 'Immagini caricate',
+          description: uploadedUrls.length === 1
+            ? 'L\'immagine è stata compressa e caricata correttamente.'
+            : `${uploadedUrls.length} immagini sono state compresse e caricate correttamente.`,
+        });
       }
-      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-        toast({ variant: 'destructive', title: 'Tipo di file non valido', description: `L'immagine ${file.name} non è un formato supportato.` });
-        return;
+    } catch (error) {
+      console.error('Image upload error', error);
+      toast({
+        variant: 'destructive',
+        title: 'Errore nel caricamento',
+        description: 'Non è stato possibile caricare le immagini. Riprova.',
+      });
+    } finally {
+      setIsUploadingImages(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        newImages.push(dataUrl);
-        form.setValue('images', newImages, { shouldValidate: true });
-      };
-      reader.readAsDataURL(file);
-    });
+    }
   };
 
   const removeImage = (index: number) => {
@@ -120,8 +226,6 @@ export function CarForm({ car, onFinished }: CarFormProps) {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!firestore) return;
-
     try {
       if (car) {
         // Update existing car
@@ -210,10 +314,16 @@ export function CarForm({ car, onFinished }: CarFormProps) {
                     accept={ACCEPTED_IMAGE_TYPES.join(',')}
                     className="hidden"
                   />
+                  {isUploadingImages && (
+                    <div className="flex items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Compressione e caricamento delle immagini in corso...</span>
+                    </div>
+                  )}
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                     {imageValues.map((src, index) => (
                       <div key={index} className="relative aspect-square rounded-md overflow-hidden group">
-                        <Image src={src} alt={`Anteprima ${index + 1}`} fill className="object-cover" />
+                        <NextImage src={src} alt={`Anteprima ${index + 1}`} fill className="object-cover" />
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <Button
                             type="button"
@@ -234,8 +344,13 @@ export function CarForm({ car, onFinished }: CarFormProps) {
                       variant="outline"
                       className="aspect-square flex-col gap-1"
                       onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingImages}
                     >
-                      <Upload className="w-6 h-6 text-muted-foreground" />
+                      {isUploadingImages ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      ) : (
+                        <Upload className="w-6 h-6 text-muted-foreground" />
+                      )}
                       <span className="text-xs text-muted-foreground">Carica</span>
                     </Button>
                   </div>
@@ -434,9 +549,9 @@ export function CarForm({ car, onFinished }: CarFormProps) {
 
 
         <div className="flex justify-end pt-4">
-            <Button type="submit" disabled={isSubmitting || !firestore}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isSubmitting ? 'Salvataggio...' : 'Salva Auto'}
+            <Button type="submit" disabled={isSubmitting || isUploadingImages}>
+                {(isSubmitting || isUploadingImages) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting || isUploadingImages ? 'Salvataggio...' : 'Salva Auto'}
             </Button>
         </div>
       </form>

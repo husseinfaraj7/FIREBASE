@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Filter, Loader2 } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
+import { carConverter } from '@/firebase/converters/carConverter';
 
 export default function AutoListPage() {
   const [filters, setFilters] = useState({
@@ -30,7 +31,10 @@ export default function AutoListPage() {
   const itemsPerPage = 9;
 
   const firestore = useFirestore();
-  const carsRef = useMemoFirebase(() => firestore ? collection(firestore, 'cars') : null, [firestore]);
+  const carsRef = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'cars').withConverter(carConverter) : null),
+    [firestore]
+  );
   const { data: allCars, isLoading } = useCollection<Car>(carsRef);
 
   const filteredAndSortedCars = useMemo(() => {

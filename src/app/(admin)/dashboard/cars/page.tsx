@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { CarForm } from "./car-form";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection, doc } from "firebase/firestore";
+import { carConverter } from "@/firebase/converters/carConverter";
 import type { Car } from "@/types";
 import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import {
@@ -31,7 +32,10 @@ export default function AdminCarsPage() {
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
 
   const firestore = useFirestore();
-  const carsRef = useMemoFirebase(() => (firestore ? collection(firestore, "cars") : null), [firestore]);
+  const carsRef = useMemoFirebase(
+    () => (firestore ? collection(firestore, "cars").withConverter(carConverter) : null),
+    [firestore]
+  );
   const { data: cars, isLoading } = useCollection<Car>(carsRef);
 
   const handleEdit = (car: Car) => {

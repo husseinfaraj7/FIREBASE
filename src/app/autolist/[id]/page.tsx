@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { doc } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import React, { useEffect } from 'react';
 
@@ -13,16 +13,22 @@ import { ImageGallery } from '@/components/autolist/[id]/image-gallery';
 import { CarDetails } from '@/components/autolist/[id]/car-details';
 import { CarInquiryForm } from '@/components/autolist/[id]/car-inquiry-form';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { carConverter } from '@/firebase/converters/carConverter';
 import type { Car } from '@/types';
 
 function CarDetailContent({ id }: { id: string }) {
   const router = useRouter();
   const firestore = useFirestore();
 
+  const carsCollection = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'cars').withConverter(carConverter) : null),
+    [firestore]
+  );
+
   const carRef = useMemoFirebase(() => {
-    if (!firestore || !id) return null;
-    return doc(firestore, 'cars', id);
-  }, [firestore, id]);
+    if (!carsCollection || !id) return null;
+    return doc(carsCollection, id);
+  }, [carsCollection, id]);
 
   const { data: car, isLoading, error } = useDoc<Car>(carRef);
 

@@ -2,8 +2,9 @@
 
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
@@ -32,11 +33,34 @@ export function initializeFirebase() {
   return getSdks(getApp());
 }
 
+const EMULATOR_HOST = process.env.NEXT_PUBLIC_FIREBASE_EMULATORS_HOST ?? '127.0.0.1';
+const FIRESTORE_EMULATOR_PORT = Number(process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_EMULATOR_PORT ?? '8080');
+const AUTH_EMULATOR_PORT = Number(process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_PORT ?? '9099');
+const STORAGE_EMULATOR_PORT = Number(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_EMULATOR_PORT ?? '9199');
+
+const emulatorFlag = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS;
+const defaultToEmulators = process.env.NODE_ENV !== 'production';
+const shouldUseEmulators = emulatorFlag === 'true' || (emulatorFlag === undefined && defaultToEmulators);
+
+let emulatorsConnected = false;
+
 export function getSdks(firebaseApp: FirebaseApp) {
+  const auth = getAuth(firebaseApp);
+  const firestore = getFirestore(firebaseApp);
+  const storage = getStorage(firebaseApp);
+
+  if (shouldUseEmulators && !emulatorsConnected) {
+    connectAuthEmulator(auth, `http://${EMULATOR_HOST}:${AUTH_EMULATOR_PORT}`, { disableWarnings: true });
+    connectFirestoreEmulator(firestore, EMULATOR_HOST, FIRESTORE_EMULATOR_PORT);
+    connectStorageEmulator(storage, EMULATOR_HOST, STORAGE_EMULATOR_PORT);
+    emulatorsConnected = true;
+  }
+
   return {
     firebaseApp,
-    auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp)
+    auth,
+    firestore,
+    storage,
   };
 }
 
