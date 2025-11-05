@@ -1,5 +1,5 @@
-import admin from 'firebase-admin';
-import serviceAccount from './studio-7722364471-1125e-firebase-adminsdk-fbsvc.json' assert { type: 'json' };
+const admin = require('firebase-admin');
+const serviceAccount = require('./studio-7722364471-1125e-firebase-adminsdk-fbsvc-09431daae3.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),

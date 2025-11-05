@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   Card,
@@ -51,41 +51,15 @@ export default function DashboardPage() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isUserLoading } = useUser();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isClaimsLoading, setIsClaimsLoading] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-    const checkClaims = async () => {
-      if (user) {
-        try {
-          const token = await user.getIdTokenResult(true);
-          if (mounted) setIsAdmin(!!token.claims.admin);
-        } catch (err) {
-          console.error('Error fetching token claims:', err);
-          if (mounted) setIsAdmin(false);
-        }
-      }
-      if (mounted) setIsClaimsLoading(false);
-    };
-
-    checkClaims();
-    return () => {
-      mounted = false;
-    };
-  }, [user]);
-
-  const isLoading = isUserLoading || isClaimsLoading;
+  const isLoading = isUserLoading;
 
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
         router.replace(`/login?from=${pathname}`);
-      } else if (user && !isAdmin) {
-        router.replace('/');
       }
     }
-  }, [user, isAdmin, isLoading, pathname, router]);
+  }, [user, isLoading, pathname, router]);
 
   if (isLoading) {
     return (
@@ -98,7 +72,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user || !isAdmin) return null;
+  if (!user) return null;
 
   return (
     <main className="bg-muted/10">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -54,28 +54,6 @@ export default function MessageDetailPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const { user, isUserLoading } = useUser();
-
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-
-  // --- Check admin claim once user is loaded ---
-  useEffect(() => {
-    const checkAdminClaim = async () => {
-      if (!user) {
-        setIsAdmin(false);
-        return;
-      }
-
-      try {
-        const tokenResult = await user.getIdTokenResult();
-        setIsAdmin(!!tokenResult.claims.admin);
-      } catch (err) {
-        console.error("Failed to fetch claims:", err);
-        setIsAdmin(false);
-      }
-    };
-
-    if (!isUserLoading) checkAdminClaim();
-  }, [user, isUserLoading]);
 
   // --- Redirect non-logged-in users ---
   useEffect(() => {
@@ -131,7 +109,7 @@ export default function MessageDetailPage() {
   };
 
   // --- Loading state ---
-  if (isUserLoading || isMessageLoading || isAdmin === null) {
+  if (isUserLoading || isMessageLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -144,10 +122,6 @@ export default function MessageDetailPage() {
 
   // --- Access guards ---
   if (!user) return null;
-  if (isAdmin === false) {
-    router.replace("/");
-    return null;
-  }
 
   if (!message) {
     return (

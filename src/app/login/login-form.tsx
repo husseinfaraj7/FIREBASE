@@ -40,7 +40,6 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('from') || '/dashboard';
-  const isUnauthorized = searchParams.get('unauthorized') === '1';
 
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
@@ -60,12 +59,6 @@ export function LoginForm() {
   const { isSubmitting } = form.formState;
 
   // Automatically redirect if already logged in
-  useEffect(() => {
-    if (isUnauthorized) {
-      setAuthError('Non hai i permessi per accedere all’area amministratore. Accedi con un account autorizzato.');
-    }
-  }, [isUnauthorized]);
-
   useEffect(() => {
     if (!user) {
       hasHandledExistingUserRef.current = false;
@@ -125,7 +118,7 @@ export function LoginForm() {
     };
 
     checkUserRole();
-  }, [user, isUserLoading, auth, router, redirectTo]);
+  }, [user, isUserLoading, router, redirectTo]);
 
   const handleLogin = async (data: LoginFormValues) => {
     if (!auth) return;
@@ -231,7 +224,7 @@ export function LoginForm() {
           </div>
           <CardTitle id="login-title">Accesso Area Riservata</CardTitle>
           <CardDescription>
-            Inserisci le tue credenziali da amministratore.
+            Inserisci le tue credenziali per accedere all'area riservata.
           </CardDescription>
         </CardHeader>
         <CardContent>
