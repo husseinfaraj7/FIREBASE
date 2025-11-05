@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 import { Loader2, Car } from 'lucide-react';
 
 import { useAuth, useUser } from '@/firebase';
@@ -68,8 +69,52 @@ export function LoginForm() {
     const checkUserRole = async () => {
       if (isUserLoading || !user || hasHandledExistingUserRef.current) return;
 
-      hasHandledExistingUserRef.current = true;
-      router.replace(redirectTo);
+      try {
+        let token = await user.getIdTokenResult();
+
+        if (token.claims.admin !== true) {
+          try {
+            token = await user.getIdTokenResult(true);
+          } catch (refreshError) {
+            if (
+              refreshError instanceof FirebaseError &&
+              refreshError.code === 'auth/network-request-failed'
+            ) {
+              setAuthError(
+                'Connessione di rete assente o instabile. Riprova a connetterti per verificare i permessi.'
+              );
+              return;
+            }
+
+            throw refreshError;
+          }
+        }
+
+        const isAdmin = token.claims.admin === true;
+
+        if (isAdmin) {
+          hasHandledExistingUserRef.current = true;
+          router.replace(redirectTo);
+        } else {
+          hasHandledExistingUserRef.current = true;
+          await signOut(auth);
+          setAuthError('Non hai i permessi per accedere all’area amministratore. Accedi con un account autorizzato.');
+        }
+      } catch (error) {
+        console.error('Impossibile recuperare il token utente', error);
+        if (
+          error instanceof FirebaseError &&
+          error.code === 'auth/network-request-failed'
+        ) {
+          setAuthError(
+            'Connessione di rete assente o instabile. Riprova a connetterti per verificare i permessi.'
+          );
+        } else {
+          setAuthError(
+            "Si è verificato un errore durante la verifica dei permessi. Riprova."
+          );
+        }
+      }
     };
 
     checkUserRole();
@@ -82,11 +127,65 @@ export function LoginForm() {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       const currentUser = auth.currentUser;
-      toast({
-        title: 'Accesso effettuato',
-        description: "Bentornato nell'area riservata.",
-      });
-      router.push(redirectTo);
+
+      if (!currentUser) {
+        setAuthError(
+          "Si è verificato un errore durante l'accesso. Riprova tra qualche istante."
+        );
+        return;
+      }
+
+      let token;
+
+      try {
+        token = await currentUser.getIdTokenResult();
+      } catch (error) {
+        if (
+          error instanceof FirebaseError &&
+          error.code === 'auth/network-request-failed'
+        ) {
+          setAuthError(
+            'Connessione di rete assente o instabile. Controlla la connessione e riprova.'
+          );
+          return;
+        }
+
+        throw error;
+      }
+
+      if (token.claims.admin !== true) {
+        try {
+          token = await currentUser.getIdTokenResult(true);
+        } catch (refreshError) {
+          if (
+            refreshError instanceof FirebaseError &&
+            refreshError.code === 'auth/network-request-failed'
+          ) {
+            setAuthError(
+              'Connessione di rete assente o instabile. Controlla la connessione e riprova.'
+            );
+            return;
+          }
+
+          throw refreshError;
+        }
+      }
+
+      if (token.claims.admin) {
+        toast({
+          title: 'Accesso effettuato',
+          description: "Bentornato nell'area di amministrazione.",
+        });
+        router.push(redirectTo);
+      } else {
+        toast({
+          title: 'Accesso negato',
+          description: 'Non hai i permessi per accedere all’area amministratore.',
+          variant: 'destructive',
+        });
+        await signOut(auth); // Sign out non-admin user
+        setAuthError('Non hai i permessi per accedere all’area amministratore. Accedi con un account autorizzato.');
+      }
     } catch (err: any) {
       const code = err.code;
       const message =
