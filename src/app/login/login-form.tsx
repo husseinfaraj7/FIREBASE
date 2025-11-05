@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { Loader2, Car } from 'lucide-react';
 
 import { useAuth, useUser } from '@/firebase';
@@ -39,12 +39,14 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('from') || '/dashboard';
+  const isUnauthorized = searchParams.get('unauthorized') === '1';
 
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
 
   const [authError, setAuthError] = useState<string | null>(null);
+  const hasHandledExistingUserRef = useRef(false);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -58,22 +60,36 @@ export function LoginForm() {
 
   // Automatically redirect if already logged in
   useEffect(() => {
-    const checkUserRole = async () => {
-      if (isUserLoading) return;
-      if (!user) return;
+    if (isUnauthorized) {
+      setAuthError('Non hai i permessi per accedere all’area amministratore. Accedi con un account autorizzato.');
+    }
+  }, [isUnauthorized]);
 
-      const token = await user.getIdTokenResult();
+  useEffect(() => {
+    if (!user) {
+      hasHandledExistingUserRef.current = false;
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      if (isUserLoading || !user || hasHandledExistingUserRef.current) return;
+
+      const token = await user.getIdTokenResult(true);
       const isAdmin = token.claims.admin === true;
 
       if (isAdmin) {
-        router.replace('/dashboard');
+        hasHandledExistingUserRef.current = true;
+        router.replace(redirectTo);
       } else {
-        router.replace('/');
+        hasHandledExistingUserRef.current = true;
+        await signOut(auth);
+        setAuthError('Non hai i permessi per accedere all’area amministratore. Accedi con un account autorizzato.');
       }
     };
 
     checkUserRole();
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, auth, router, redirectTo]);
 
   const handleLogin = async (data: LoginFormValues) => {
     if (!auth) return;
@@ -96,8 +112,8 @@ export function LoginForm() {
           description: 'Non hai i permessi per accedere all’area amministratore.',
           variant: 'destructive',
         });
-        await auth.signOut(); // Sign out non-admin user
-        router.push('/');
+        await signOut(auth); // Sign out non-admin user
+        setAuthError('Non hai i permessi per accedere all’area amministratore. Accedi con un account autorizzato.');
       }
     } catch (err: any) {
       const code = err.code;
