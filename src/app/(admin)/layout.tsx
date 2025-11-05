@@ -76,9 +76,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // --- Step 2: Redirect logic (once loading finishes) ---
   useEffect(() => {
     if (!isUserLoading && !user) {
-      router.replace(`/login?from=${pathname}`);
+      const params = new URLSearchParams({ from: pathname });
+      router.replace(`/login?${params.toString()}`);
     } else if (!isClaimsLoading && user && !isAdmin) {
-      router.replace('/');
+      const params = new URLSearchParams({ from: pathname, unauthorized: '1' });
+      router.replace(`/login?${params.toString()}`);
     }
   }, [user, isUserLoading, isAdmin, isClaimsLoading, pathname, router]);
 
