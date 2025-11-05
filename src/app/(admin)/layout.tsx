@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -40,49 +40,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
 
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isClaimsLoading, setIsClaimsLoading] = useState(true);
-
-  // --- Step 1: Fetch custom claims (admin) ---
-  useEffect(() => {
-    let isMounted = true;
-
-    const checkClaims = async () => {
-      if (user) {
-        try {
-          // ✅ Force refresh to ensure latest claims
-          const idTokenResult = await user.getIdTokenResult(true);
-          if (isMounted) {
-            setIsAdmin(!!idTokenResult.claims.admin);
-            console.log('Admin claim:', idTokenResult.claims.admin);
-          }
-        } catch (err) {
-          console.error('Error checking admin claims:', err);
-          if (isMounted) setIsAdmin(false);
-        } finally {
-          if (isMounted) setIsClaimsLoading(false);
-        }
-      } else {
-        if (isMounted) setIsClaimsLoading(false);
-      }
-    };
-
-    checkClaims();
-    return () => {
-      isMounted = false;
-    };
-  }, [user]);
-
-  // --- Step 2: Redirect logic (once loading finishes) ---
+  // --- Redirect logic ---
   useEffect(() => {
     if (!isUserLoading && !user) {
       const params = new URLSearchParams({ from: pathname });
       router.replace(`/login?${params.toString()}`);
-    } else if (!isClaimsLoading && user && !isAdmin) {
-      const params = new URLSearchParams({ from: pathname, unauthorized: '1' });
-      router.replace(`/login?${params.toString()}`);
     }
-  }, [user, isUserLoading, isAdmin, isClaimsLoading, pathname, router]);
+  }, [user, isUserLoading, pathname, router]);
 
   // --- Step 3: Sign out handler ---
   const handleSignOut = async () => {
@@ -90,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   // --- Step 4: Loading state ---
-  const isLoading = isUserLoading || isClaimsLoading;
+  const isLoading = isUserLoading;
 
   if (isLoading) {
     return (
@@ -104,7 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   // --- Step 5: Guard ---
-  if (!user || !isAdmin) return null;
+  if (!user) return null;
 
   // --- Step 6: Layout rendering ---
   return (

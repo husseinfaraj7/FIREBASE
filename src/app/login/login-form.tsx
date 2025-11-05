@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Loader2, Car } from 'lucide-react';
 
 import { useAuth, useUser } from '@/firebase';
@@ -39,7 +39,6 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('from') || '/dashboard';
-  const isUnauthorized = searchParams.get('unauthorized') === '1';
 
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
@@ -60,12 +59,6 @@ export function LoginForm() {
 
   // Automatically redirect if already logged in
   useEffect(() => {
-    if (isUnauthorized) {
-      setAuthError('Non hai i permessi per accedere all’area amministratore. Accedi con un account autorizzato.');
-    }
-  }, [isUnauthorized]);
-
-  useEffect(() => {
     if (!user) {
       hasHandledExistingUserRef.current = false;
     }
@@ -75,21 +68,12 @@ export function LoginForm() {
     const checkUserRole = async () => {
       if (isUserLoading || !user || hasHandledExistingUserRef.current) return;
 
-      const token = await user.getIdTokenResult(true);
-      const isAdmin = token.claims.admin === true;
-
-      if (isAdmin) {
-        hasHandledExistingUserRef.current = true;
-        router.replace(redirectTo);
-      } else {
-        hasHandledExistingUserRef.current = true;
-        await signOut(auth);
-        setAuthError('Non hai i permessi per accedere all’area amministratore. Accedi con un account autorizzato.');
-      }
+      hasHandledExistingUserRef.current = true;
+      router.replace(redirectTo);
     };
 
     checkUserRole();
-  }, [user, isUserLoading, auth, router, redirectTo]);
+  }, [user, isUserLoading, router, redirectTo]);
 
   const handleLogin = async (data: LoginFormValues) => {
     if (!auth) return;
@@ -98,23 +82,11 @@ export function LoginForm() {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       const currentUser = auth.currentUser;
-      const token = await currentUser?.getIdTokenResult(true);
-
-      if (token?.claims.admin) {
-        toast({
-          title: 'Accesso effettuato',
-          description: "Bentornato nell'area di amministrazione.",
-        });
-        router.push(redirectTo);
-      } else {
-        toast({
-          title: 'Accesso negato',
-          description: 'Non hai i permessi per accedere all’area amministratore.',
-          variant: 'destructive',
-        });
-        await signOut(auth); // Sign out non-admin user
-        setAuthError('Non hai i permessi per accedere all’area amministratore. Accedi con un account autorizzato.');
-      }
+      toast({
+        title: 'Accesso effettuato',
+        description: "Bentornato nell'area riservata.",
+      });
+      router.push(redirectTo);
     } catch (err: any) {
       const code = err.code;
       const message =
@@ -153,7 +125,7 @@ export function LoginForm() {
           </div>
           <CardTitle id="login-title">Accesso Area Riservata</CardTitle>
           <CardDescription>
-            Inserisci le tue credenziali da amministratore.
+            Inserisci le tue credenziali per accedere all'area riservata.
           </CardDescription>
         </CardHeader>
         <CardContent>
