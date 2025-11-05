@@ -44,8 +44,8 @@ const recommendCarsFlow = ai.defineFlow(
     inputSchema: CarRecommendationInputSchema,
     outputSchema: CarRecommendationOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+  async (input) => {
+    const result = await prompt(input);
+    return result?.output ?? [];
   }
 );

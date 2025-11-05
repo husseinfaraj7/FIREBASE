@@ -2,22 +2,27 @@
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
+import { carConverter } from '@/firebase/converters/carConverter';
 import type { Car } from '@/types';
 import { CarCard } from '@/components/car-card';
 import { Loader2 } from 'lucide-react';
 
 export function FeaturedCarsContent() {
   const firestore = useFirestore();
-  const carsRef = useMemoFirebase(() => {
-    if (!firestore) return null;
+  const carsCollection = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'cars').withConverter(carConverter) : null),
+    [firestore]
+  );
+  const carsQuery = useMemoFirebase(() => {
+    if (!carsCollection) return null;
     return query(
-      collection(firestore, 'cars'),
+      carsCollection,
       where('featured', '==', true),
       limit(3)
     );
-  }, [firestore]);
+  }, [carsCollection]);
 
-  const { data: featuredCars, isLoading } = useCollection<Car>(carsRef);
+  const { data: featuredCars, isLoading } = useCollection<Car>(carsQuery);
 
   if (isLoading) {
     return (
